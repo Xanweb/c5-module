@@ -6,8 +6,23 @@ use Concrete\Core\Support\Facade\Route;
 use Concrete\Core\Foundation\ClassAliasList;
 use Concrete\Core\Foundation\Service\ProviderList;
 
+/**
+ * @method static \Concrete\Core\Config\Repository\Liaison getConfig()
+ * @method static \Concrete\Core\Config\Repository\Liaison getFileConfig()
+ * @method static string getPackagePath()
+ * @method static string getRelativePath()
+ *
+ * @see \Concrete\Core\Package\Package
+ */
 abstract class Module implements ModuleInterface
 {
+    /**
+     * The resolved object instances.
+     *
+     * @var array
+     */
+    protected static $resolvedPackInstance;
+
     /**
      * Class to be used Statically.
      */
@@ -23,39 +38,12 @@ abstract class Module implements ModuleInterface
      */
     public static function pkg()
     {
-        $pkg = null;
-        $app = Application::getFacadeApplication();
-        $cache = $app->make('cache/request');
-        $item = $cache->getItem(sprintf('/package/handle/%s', static::pkgHandle()));
-        if (!$item->isMiss()) {
-            $pkg = $item->get();
-        } else {
-            $pkg = $app->make('Concrete\Core\Package\PackageService')->getByHandle(static::pkgHandle());
-
-            $cache->save($item->set($pkg));
+        $pkgHandle = static::pkgHandle();
+        if (!isset(static::$resolvedPackInstance[$pkgHandle])) {
+            static::$resolvedPackInstance[$pkgHandle] = self::app('Concrete\Core\Package\PackageService')->getByHandle($pkgHandle);
         }
 
-        return $pkg;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see Module::config()
-     */
-    public static function config()
-    {
-        return static::pkg()->getController()->getConfig();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see Module::fileConfig()
-     */
-    public static function fileConfig()
-    {
-        return static::pkg()->getController()->getFileConfig();
+        return static::$resolvedPackInstance[$pkgHandle];
     }
 
     /**
@@ -149,5 +137,25 @@ abstract class Module implements ModuleInterface
         }
 
         return $app;
+    }
+
+    /**
+     * Handle dynamic, static calls to the controller.
+     *
+     * @param  string  $method
+     * @param  array  $args
+     * @return mixed
+     *
+     * @throws \RuntimeException
+     */
+    public static function __callStatic($method, $args)
+    {
+        $pkg = static::pkg();
+
+        if (!$pkg) {
+            throw new \RuntimeException(t('Package Not Found.'));
+        }
+
+        return $pkg->getController()->$method(...$args);
     }
 }

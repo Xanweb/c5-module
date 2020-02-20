@@ -18,20 +18,6 @@ interface ModuleInterface
     public static function pkg();
 
     /**
-     * Get Package Database Config.
-     *
-     * @return \Concrete\Core\Config\Repository\Liaison
-     */
-    public static function config();
-
-    /**
-     * Get Package File Config.
-     *
-     * @return \Concrete\Core\Config\Repository\Liaison
-     */
-    public static function fileConfig();
-
-    /**
      * Basic Boot for Module.
      */
     public static function boot();
