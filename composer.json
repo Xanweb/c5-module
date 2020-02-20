@@ -1,0 +1,15 @@
+{
+    "name": "xanweb/c5-module",
+    "description": "Concrete5 package signature",
+    "keywords": ["concrete5", "concrete5-v8", "concrete5-package"],
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Xanweb\\Module\\": "src/"
+        }
+    },
+    "support": {
+        "source": "https://github.com/xanweb/c5-module"
+    }
+}
