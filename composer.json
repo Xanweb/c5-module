@@ -4,6 +4,9 @@
     "keywords": ["concrete5", "concrete5-v8", "concrete5-package"],
     "type": "library",
     "license": "MIT",
+    "require": {
+        "php": ">=7.2"
+    },
     "autoload": {
         "psr-4": {
             "Xanweb\\Module\\": "src/"
