@@ -9,10 +9,10 @@ use Concrete\Core\Block\BlockType\BlockType;
 use Concrete\Core\Support\Facade\Application;
 use Concrete\Core\Entity\Package as PackageEntity;
 use Concrete\Core\Package\Package;
+use Concrete\Core\Page\Template as PageTemplate;
+use Concrete\Core\Page\Type\Type as PageType;
 use Concrete\Core\Page\Single as SinglePage;
 use Concrete\Core\Page\Page;
-use PageTemplate;
-use PageType;
 
 class Installer
 {
