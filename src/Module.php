@@ -1,6 +1,7 @@
 <?php
 namespace Xanweb\Module;
 
+use Concrete\Core\Entity\Package;
 use Concrete\Core\Support\Facade\Application;
 use Concrete\Core\Support\Facade\Route;
 use Concrete\Core\Foundation\ClassAliasList;
@@ -28,7 +29,6 @@ abstract class Module implements ModuleInterface
      */
     private function __construct()
     {
-        return false;
     }
 
     /**
@@ -36,7 +36,7 @@ abstract class Module implements ModuleInterface
      *
      * @see Module::pkg()
      */
-    public static function pkg()
+    public static function pkg(): Package
     {
         $pkgHandle = static::pkgHandle();
         if (!isset(static::$resolvedPackInstance[$pkgHandle])) {
@@ -132,7 +132,7 @@ abstract class Module implements ModuleInterface
     {
         $app = Application::getFacadeApplication();
 
-        if (!is_null($make)) {
+        if ($make !== null) {
             return $app->make($make);
         }
 
@@ -145,16 +145,10 @@ abstract class Module implements ModuleInterface
      * @param  string  $method
      * @param  array  $args
      * @return mixed
-     *
-     * @throws \RuntimeException
      */
     public static function __callStatic($method, $args)
     {
         $pkg = static::pkg();
-
-        if (!$pkg) {
-            throw new \RuntimeException(t('Package Not Found.'));
-        }
 
         return $pkg->getController()->$method(...$args);
     }

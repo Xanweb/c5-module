@@ -1,6 +1,8 @@
 <?php
 namespace Xanweb\Module;
 
+use Concrete\Core\Entity\Package;
+
 interface ModuleInterface
 {
     /**
@@ -13,9 +15,9 @@ interface ModuleInterface
     /**
      * Get current package object.
      *
-     * @return \Concrete\Core\Entity\Package
+     * @return Package
      */
-    public static function pkg();
+    public static function pkg(): Package;
 
     /**
      * Basic Boot for Module.
