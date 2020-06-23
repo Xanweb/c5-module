@@ -68,14 +68,14 @@ abstract class Module implements ModuleInterface
         $routeListClasses = static::getRoutesClasses();
         if (is_array($routeListClasses) && !empty($routeListClasses)) {
             /**
-             * @var \Concrete\Core\Routing\Router
+             * @var \Concrete\Core\Routing\Router $router
              */
             $router = Route::getFacadeRoot();
             foreach ($routeListClasses as $routeListClass) {
                 if (is_subclass_of($routeListClass, 'Concrete\Core\Routing\RouteListInterface')) {
                     $router->loadRouteList($app->build($routeListClass));
                 } else {
-                    throw new \Exception(t(get_called_class() . ':getRoutesClass: RoutesClass should be instanceof Concrete\Core\Routing\RouteListInterface'));
+                    throw new \Exception(t(static::class . ':getRoutesClass: RoutesClass should be instanceof Concrete\Core\Routing\RouteListInterface'));
                 }
             }
         }
@@ -89,7 +89,7 @@ abstract class Module implements ModuleInterface
     protected static function getClassAliases()
     {
         return [
-            static::getPackageAlias() => get_called_class(),
+            static::getPackageAlias() => static::class,
         ];
     }
 
