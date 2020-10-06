@@ -1,6 +1,7 @@
 <?php
 namespace Xanweb\Module;
 
+use Concrete\Core\Asset\AssetList;
 use Concrete\Core\Entity\Package;
 use Concrete\Core\Support\Facade\Application;
 use Concrete\Core\Support\Facade\Route;
@@ -79,6 +80,35 @@ abstract class Module implements ModuleInterface
                 }
             }
         }
+
+        $routeListClasses = static::getRoutesClasses();
+        if (is_array($routeListClasses) && !empty($routeListClasses)) {
+            /**
+             * @var \Concrete\Core\Routing\Router $router
+             */
+            $router = Route::getFacadeRoot();
+            foreach ($routeListClasses as $routeListClass) {
+                if (is_subclass_of($routeListClass, 'Concrete\Core\Routing\RouteListInterface')) {
+                    $router->loadRouteList($app->build($routeListClass));
+                } else {
+                    throw new \Exception(t(static::class . ':getRoutesClass: RoutesClass should be instanceof Concrete\Core\Routing\RouteListInterface'));
+                }
+            }
+        }
+
+        $assetProviders = static::getAssetProviders();
+        if (!empty($assetProviders)) {
+            $al = AssetList::getInstance();
+            foreach ($assetProviders as $assetProviderClass) {
+                if (is_subclass_of($assetProviderClass, 'Xanweb\Module\Asset\ProviderInterface')) {
+                    $assetProvider = $app->build($assetProviderClass);
+                    $al->registerMultiple($assetProvider->getAssets());
+                    $al->registerGroupMultiple($assetProvider->getAssetGroups());
+                } else {
+                    throw new \Exception(t(static::class . ':getAssetProviders: Asset Provider class should be instanceof Xanweb\Module\Asset\ProviderInterface'));
+                }
+            }
+        }
     }
 
     /**
@@ -119,6 +149,14 @@ abstract class Module implements ModuleInterface
      * @return array
      */
     protected static function getRoutesClasses()
+    {
+        return [];
+    }
+
+    /**
+     * AssetProviders should be instance of \Xanweb\Module\Asset\ProviderInterface.
+     */
+    protected static function getAssetProviders(): array
     {
         return [];
     }
