@@ -1,4 +1,5 @@
 <?php
+
 namespace Xanweb\Module;
 
 use Concrete\Core\Entity\Package;

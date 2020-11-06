@@ -29,7 +29,7 @@ abstract class Provider implements ApplicationAwareInterface
     }
 
     /**
-     * The Assets array will be passed to \Concrete\Core\Asset\AssetList::registerMultiple()
+     * The Assets array will be passed to \Concrete\Core\Asset\AssetList::registerMultiple().
      *
      * <code>
      * [
@@ -44,7 +44,7 @@ abstract class Provider implements ApplicationAwareInterface
     abstract public function getAssets(): array;
 
     /**
-     * The Asset Groups array will be passed to \Concrete\Core\Asset\AssetList::registerGroupMultiple()
+     * The Asset Groups array will be passed to \Concrete\Core\Asset\AssetList::registerGroupMultiple().
      *
      * <code>
      * [
@@ -66,7 +66,7 @@ abstract class Provider implements ApplicationAwareInterface
     }
 
     /**
-     * Register Assets
+     * Register Assets.
      */
     public function register(): void
     {

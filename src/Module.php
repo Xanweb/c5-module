@@ -1,11 +1,12 @@
 <?php
+
 namespace Xanweb\Module;
 
 use Concrete\Core\Entity\Package;
-use Concrete\Core\Support\Facade\Application;
-use Concrete\Core\Support\Facade\Route;
 use Concrete\Core\Foundation\ClassAliasList;
 use Concrete\Core\Foundation\Service\ProviderList;
+use Concrete\Core\Support\Facade\Application;
+use Concrete\Core\Support\Facade\Route;
 
 /**
  * @method static \Concrete\Core\Config\Repository\Liaison getConfig()
@@ -29,6 +30,21 @@ abstract class Module implements ModuleInterface
      */
     private function __construct()
     {
+    }
+
+    /**
+     * Handle dynamic, static calls to the controller.
+     *
+     * @param  string  $method
+     * @param  array  $args
+     *
+     * @return mixed
+     */
+    public static function __callStatic($method, $args)
+    {
+        $pkg = static::pkg();
+
+        return $pkg->getController()->$method(...$args);
     }
 
     /**
@@ -91,6 +107,15 @@ abstract class Module implements ModuleInterface
         }
     }
 
+    public static function isInstalled(): bool
+    {
+        try {
+            return static::pkg()->isPackageInstalled();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
     /**
      * Classes to be registered as aliases in \Concrete\Core\Foundation\ClassAliasList.
      *
@@ -108,7 +133,7 @@ abstract class Module implements ModuleInterface
      *
      * @return string
      */
-    protected static function getPackageAlias()
+    protected static function getPackageAlias(): string
     {
         return camelcase(static::pkgHandle());
     }
@@ -155,19 +180,5 @@ abstract class Module implements ModuleInterface
         }
 
         return $app;
-    }
-
-    /**
-     * Handle dynamic, static calls to the controller.
-     *
-     * @param  string  $method
-     * @param  array  $args
-     * @return mixed
-     */
-    public static function __callStatic($method, $args)
-    {
-        $pkg = static::pkg();
-
-        return $pkg->getController()->$method(...$args);
     }
 }
