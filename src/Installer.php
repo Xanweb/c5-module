@@ -8,6 +8,7 @@ use Concrete\Core\Attribute\TypeFactory;
 use Concrete\Core\Block\BlockType\BlockType;
 use Concrete\Core\Block\BlockType\Set as BlockTypeSet;
 use Concrete\Core\Entity\Package as PackageEntity;
+use Concrete\Core\Error\ErrorList\ErrorList;
 use Concrete\Core\Package\Package;
 use Concrete\Core\Page\Page;
 use Concrete\Core\Page\Single as SinglePage;
@@ -482,6 +483,18 @@ class Installer
     }
 
     /**
+     * @param string $handle
+     * @param string $name
+     * @param array $associatedAttrs
+     *
+     * @return \Concrete\Core\Entity\Attribute\Set
+     */
+    public function installPageAttributeSet($handle, $name, array $associatedAttrs = [])
+    {
+        return $this->installAttributeSet('collection', $handle, $name, $associatedAttrs);
+    }
+
+    /**
      * @param \Concrete\Core\Entity\Attribute\Category|string $akCateg
      * @param string $handle
      * @param string $name
@@ -503,10 +516,13 @@ class Installer
             $set = $manager->addSet($handle, $name, $this->pkg);
         }
 
-        foreach ($associatedAttrs as $akHandle) {
-            $cak = $akCategController->getAttributeKeyByHandle($akHandle);
-            if (is_object($cak)) {
-                $manager->addKey($set, $cak);
+        foreach ($associatedAttrs as $ak) {
+            if (is_string($ak)) {
+                $ak = $akCategController->getAttributeKeyByHandle($ak);
+            }
+
+            if (is_object($ak)) {
+                $manager->addKey($set, $ak);
             }
         }
 
@@ -538,5 +554,63 @@ class Installer
                 $akSetObj->addKey($ak);
             }
         }
+    }
+
+    /**
+     * Override Blocks By Package.
+     *
+     * @param array $blocks
+     * @param Package|int|null $pkgObjOrId
+     *
+     * @return ErrorList
+     */
+    public function overrideBlocks(array $blocks, $pkgObjOrId = null): ErrorList
+    {
+        $pkgID = $this->pkg->getPackageID();
+        if ($pkgObjOrId) {
+            if (is_object($pkgObjOrId)) {
+                $pkgID = $pkgObjOrId->getPackageID();
+            } elseif (is_int($pkgObjOrId) && $pkgObjOrId > 0) {
+                $pkgID = (int) $pkgObjOrId;
+            } else {
+                throw new \RuntimeException('Installer::overrideBlocks: Invalid given package or package id.');
+            }
+        }
+
+        $e = new ErrorList();
+        foreach ($blocks as $btHandle) {
+            $block = BlockType::getByHandle($btHandle);
+            if ($block !== null) {
+                $block->setPackageID($pkgID);
+                $block->refresh();
+            } else {
+                $e->add(sprintf('Installer::overrideBlocks: block type with handle `%s` not found', $btHandle));
+            }
+        }
+
+        return $e;
+    }
+
+    /**
+     * Assign Blocks to Core.
+     *
+     * @param array $blocks
+     *
+     * @return ErrorList
+     */
+    public function assignBlocksToCore(array $blocks): ErrorList
+    {
+        $e = new ErrorList();
+        foreach ($blocks as $btHandle) {
+            $block = BlockType::getByHandle($btHandle);
+            if ($block !== null) {
+                $block->setPackageID(0);
+                $block->refresh();
+            } else {
+                $e->add(sprintf('Installer::overrideBlocks: block type with handle `%s` not found.', $btHandle));
+            }
+        }
+
+        return $e;
     }
 }
