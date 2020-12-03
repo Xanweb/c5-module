@@ -5,8 +5,10 @@ namespace Xanweb\Module;
 use Concrete\Core\Entity\Package;
 use Concrete\Core\Foundation\ClassAliasList;
 use Concrete\Core\Foundation\Service\ProviderList;
+use Concrete\Core\Package\PackageService;
 use Concrete\Core\Support\Facade\Application;
 use Concrete\Core\Support\Facade\Route;
+use Illuminate\Support\Str;
 
 /**
  * @method static \Concrete\Core\Config\Repository\Liaison getConfig()
@@ -56,7 +58,7 @@ abstract class Module implements ModuleInterface
     {
         $pkgHandle = static::pkgHandle();
         if (!isset(static::$resolvedPackInstance[$pkgHandle])) {
-            static::$resolvedPackInstance[$pkgHandle] = self::app('Concrete\Core\Package\PackageService')->getByHandle($pkgHandle);
+            static::$resolvedPackInstance[$pkgHandle] = self::app(PackageService::class)->getByHandle($pkgHandle);
         }
 
         return static::$resolvedPackInstance[$pkgHandle];
@@ -135,7 +137,7 @@ abstract class Module implements ModuleInterface
      */
     protected static function getPackageAlias(): string
     {
-        return camelcase(static::pkgHandle());
+        return Str::studly(static::pkgHandle());
     }
 
     /**
@@ -160,6 +162,8 @@ abstract class Module implements ModuleInterface
 
     /**
      * AssetProviders should be instance of \Xanweb\Module\Asset\Provider.
+     *
+     * @return string[]
      */
     protected static function getAssetProviders(): array
     {
