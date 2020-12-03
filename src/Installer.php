@@ -573,7 +573,7 @@ class Installer
             } elseif (is_int($pkgObjOrId) && $pkgObjOrId > 0) {
                 $pkgID = (int) $pkgObjOrId;
             } else {
-                throw new \RuntimeException('Installer::overrideBlocks: Invalid given package or package id.');
+                throw new \RuntimeException(__METHOD__ . ': ' . t('Invalid given package or package id.'));
             }
         }
 
@@ -584,7 +584,7 @@ class Installer
                 $block->setPackageID($pkgID);
                 $block->refresh();
             } else {
-                $e->add(sprintf('Installer::overrideBlocks: block type with handle `%s` not found', $btHandle));
+                $e->add(__METHOD__ . ': ' . t('Block Type with handle `%s` not found.', $btHandle));
             }
         }
 
@@ -607,7 +607,7 @@ class Installer
                 $block->setPackageID(0);
                 $block->refresh();
             } else {
-                $e->add(sprintf('Installer::overrideBlocks: block type with handle `%s` not found.', $btHandle));
+                $e->add(__METHOD__ . ': ' . t('Block Type with handle `%s` not found.', $btHandle));
             }
         }
 
