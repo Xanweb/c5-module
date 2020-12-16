@@ -1,7 +1,11 @@
 {
     "name": "xanweb/c5-module",
     "description": "Concrete5 package signature",
-    "keywords": ["concrete5", "concrete5-v8", "concrete5-package"],
+    "keywords": [
+        "concrete5",
+        "concrete5-v8",
+        "concrete5-package"
+    ],
     "type": "library",
     "license": "MIT",
     "require": {
@@ -14,5 +18,10 @@
     },
     "support": {
         "source": "https://github.com/xanweb/c5-module"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "1.x-dev"
+        }
     }
 }
