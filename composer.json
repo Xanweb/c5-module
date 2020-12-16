@@ -9,7 +9,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Xanweb\\Module\\": "src/"
+            "Xanweb\\Module\\": ""
         }
     },
     "support": {
