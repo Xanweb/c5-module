@@ -171,6 +171,44 @@ abstract class Module implements ModuleInterface
     }
 
     /**
+     * Get Database Config.
+     *
+     * @param string|null $key
+     * @param mixed $default
+     *
+     * @return \Concrete\Core\Config\Repository\Liaison|mixed
+     * @noinspection PhpMissingReturnTypeInspection
+     */
+    final public static function getConfig(?string $key = null, $default = null)
+    {
+        $config = self::controller()->getDatabaseConfig();
+        if ($key !== null) {
+            return $config->get($key, $default);
+        }
+
+        return $config;
+    }
+
+    /**
+     * Get File Config.
+     *
+     * @param string|null $key
+     * @param mixed $default
+     *
+     * @return \Concrete\Core\Config\Repository\Liaison|mixed
+     * @noinspection PhpMissingReturnTypeInspection
+     */
+    final public static function getFileConfig(?string $key = null, $default = null)
+    {
+        $config = self::controller()->getFileConfig();
+        if ($key !== null) {
+            return $config->get($key, $default);
+        }
+
+        return $config;
+    }
+
+    /**
      * @param string $make [optional]
      *
      * @return \Concrete\Core\Application\Application|object
