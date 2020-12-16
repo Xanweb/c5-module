@@ -5,18 +5,17 @@ namespace Xanweb\Module;
 use Concrete\Core\Entity\Package;
 use Concrete\Core\Foundation\ClassAliasList;
 use Concrete\Core\Foundation\Service\ProviderList;
+use Concrete\Core\Package\Package as PackageController;
 use Concrete\Core\Package\PackageService;
+use Concrete\Core\Routing\RouteListInterface;
 use Concrete\Core\Support\Facade\Application;
 use Concrete\Core\Support\Facade\Route;
 use Illuminate\Support\Str;
+use Xanweb\Module\Asset\Provider;
 
 /**
- * @method static \Concrete\Core\Config\Repository\Liaison getConfig()
- * @method static \Concrete\Core\Config\Repository\Liaison getFileConfig()
- * @method static string getPackagePath()
- * @method static string getRelativePath()
- *
- * @see \Concrete\Core\Package\Package
+ * @method static string getPackagePath() @see \Concrete\Core\Package\Package::getPackagePath()
+ * @method static string getRelativePath() @see \Concrete\Core\Package\Package::getRelativePath()
  */
 abstract class Module implements ModuleInterface
 {
@@ -26,6 +25,13 @@ abstract class Module implements ModuleInterface
      * @var array
      */
     protected static $resolvedPackInstance;
+
+    /**
+     * The resolved controller instances.
+     *
+     * @var array
+     */
+    private static $resolvedPackController;
 
     /**
      * Class to be used Statically.
@@ -44,9 +50,7 @@ abstract class Module implements ModuleInterface
      */
     public static function __callStatic($method, $args)
     {
-        $pkg = static::pkg();
-
-        return $pkg->getController()->$method(...$args);
+        return self::gecontroller()->$method(...$args);
     }
 
     /**
@@ -57,11 +61,8 @@ abstract class Module implements ModuleInterface
     public static function pkg(): Package
     {
         $pkgHandle = static::pkgHandle();
-        if (!isset(static::$resolvedPackInstance[$pkgHandle])) {
-            static::$resolvedPackInstance[$pkgHandle] = self::app(PackageService::class)->getByHandle($pkgHandle);
-        }
 
-        return static::$resolvedPackInstance[$pkgHandle];
+        return static::$resolvedPackInstance[$pkgHandle] ?? static::$resolvedPackInstance[$pkgHandle] = self::app(PackageService::class)->getByHandle($pkgHandle);
     }
 
     /**
@@ -71,8 +72,7 @@ abstract class Module implements ModuleInterface
      */
     public static function boot()
     {
-        $aliases = static::getClassAliases();
-        if (!empty($aliases)) {
+        if (!empty($aliases = static::getClassAliases())) {
             $aliasList = ClassAliasList::getInstance();
             $aliasList->registerMultiple($aliases);
         }
@@ -90,7 +90,7 @@ abstract class Module implements ModuleInterface
              */
             $router = Route::getFacadeRoot();
             foreach ($routeListClasses as $routeListClass) {
-                if (is_subclass_of($routeListClass, 'Concrete\Core\Routing\RouteListInterface')) {
+                if (is_subclass_of($routeListClass, RouteListInterface::class)) {
                     $router->loadRouteList($app->build($routeListClass));
                 } else {
                     throw new \Exception(t(static::class . ':getRoutesClass: RoutesClass should be instanceof Concrete\Core\Routing\RouteListInterface'));
@@ -100,7 +100,7 @@ abstract class Module implements ModuleInterface
 
         $assetProviders = static::getAssetProviders();
         foreach ($assetProviders as $assetProviderClass) {
-            if (is_subclass_of($assetProviderClass, 'Xanweb\Module\Asset\Provider')) {
+            if (is_subclass_of($assetProviderClass, Provider::class)) {
                 $assetProvider = $app->build($assetProviderClass, [static::pkg()]);
                 $assetProvider->register();
             } else {
@@ -143,7 +143,7 @@ abstract class Module implements ModuleInterface
     /**
      * Get Service Providers Class Names.
      *
-     * @return array
+     * @return string[]
      */
     protected static function getServiceProviders()
     {
@@ -153,7 +153,7 @@ abstract class Module implements ModuleInterface
     /**
      * Get Classes names for RouteList, must be instance of \Concrete\Core\Routing\RouteListInterface.
      *
-     * @return array
+     * @return string[]
      */
     protected static function getRoutesClasses()
     {
@@ -184,5 +184,12 @@ abstract class Module implements ModuleInterface
         }
 
         return $app;
+    }
+
+    private static function controller(): PackageController
+    {
+        $pkgHandle = static::pkgHandle();
+
+        return self::$resolvedPackController[$pkgHandle] ?? self::$resolvedPackController[$pkgHandle] = static::pkg()->getController();
     }
 }
