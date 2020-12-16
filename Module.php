@@ -50,7 +50,7 @@ abstract class Module implements ModuleInterface
      */
     public static function __callStatic($method, $args)
     {
-        return self::gecontroller()->$method(...$args);
+        return self::controller()->$method(...$args);
     }
 
     /**
