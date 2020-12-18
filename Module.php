@@ -11,6 +11,8 @@ use Concrete\Core\Routing\RouteListInterface;
 use Concrete\Core\Support\Facade\Application;
 use Concrete\Core\Support\Facade\Route;
 use Illuminate\Support\Str;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Xanweb\Module\Asset\Provider;
 
 /**
@@ -72,41 +74,56 @@ abstract class Module implements ModuleInterface
      */
     public static function boot()
     {
-        if (!empty($aliases = static::getClassAliases())) {
+        // Register Class Aliases
+        if (is_array($aliases = static::getClassAliases()) && $aliases !== []) {
             $aliasList = ClassAliasList::getInstance();
             $aliasList->registerMultiple($aliases);
         }
 
         $app = self::app();
-        $providers = static::getServiceProviders();
-        if (is_array($providers) && !empty($providers)) {
+        // Register Service Providers
+        if (is_array($providers = static::getServiceProviders()) && $providers !== []) {
             $app->make(ProviderList::class)->registerProviders($providers);
         }
 
-        $routeListClasses = static::getRoutesClasses();
-        if (is_array($routeListClasses) && !empty($routeListClasses)) {
-            /**
-             * @var \Concrete\Core\Routing\Router $router
-             */
+        // Register Route Lists
+        if (is_array($routeListClasses = static::getRoutesClasses()) && $routeListClasses !== []) {
             $router = Route::getFacadeRoot();
             foreach ($routeListClasses as $routeListClass) {
                 if (is_subclass_of($routeListClass, RouteListInterface::class)) {
                     $router->loadRouteList($app->build($routeListClass));
                 } else {
-                    throw new \Exception(t(static::class . ':getRoutesClass: RoutesClass should be instanceof Concrete\Core\Routing\RouteListInterface'));
+                    self::throwInvalidClassRuntimeException('getRoutesClasses', $routeListClass, RouteListInterface::class);
                 }
             }
         }
 
+        // Register Asset Providers
         $assetProviders = static::getAssetProviders();
         foreach ($assetProviders as $assetProviderClass) {
             if (is_subclass_of($assetProviderClass, Provider::class)) {
-                $assetProvider = $app->build($assetProviderClass, [static::pkg()]);
-                $assetProvider->register();
+                $app->build($assetProviderClass, [static::pkg()])->register();
             } else {
-                throw new \Exception(t(static::class . ':getAssetProviders: Asset Provider class should extend Xanweb\Module\Asset\Provider'));
+                self::throwInvalidClassRuntimeException('getAssetProviders', $assetProviderClass, Provider::class);
             }
         }
+
+        // Register Event Subscribers
+        if (($evtSubscriberClasses = static::getEventSubscribers()) !== []) {
+            $director = $app->make(EventDispatcherInterface::class);
+            foreach ($evtSubscriberClasses as $evtSubscriberClass) {
+                if (is_subclass_of($evtSubscriberClass, EventSubscriberInterface::class)) {
+                    $director->addSubscriber($app->build($evtSubscriberClass));
+                } else {
+                    self::throwInvalidClassRuntimeException('getEventSubscribers', $evtSubscriberClass, EventSubscriberInterface::class);
+                }
+            }
+        }
+    }
+
+    private static function throwInvalidClassRuntimeException(string $relatedMethod, $targetClass, string $requiredClass): void
+    {
+        throw new \RuntimeException(t('%s:%s - `%s` should be an instance of `%s`', static::class, $relatedMethod, (string)$targetClass, $requiredClass));
     }
 
     public static function isInstalled(): bool
@@ -166,6 +183,16 @@ abstract class Module implements ModuleInterface
      * @return string[]
      */
     protected static function getAssetProviders(): array
+    {
+        return [];
+    }
+
+    /**
+     * Event Subscribers should be instance of \Symfony\Component\EventDispatcher\EventSubscriberInterface.
+     *
+     * @return string[]
+     */
+    protected static function getEventSubscribers(): array
     {
         return [];
     }
