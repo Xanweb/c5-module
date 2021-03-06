@@ -22,13 +22,6 @@ use Xanweb\Module\Asset\Provider;
 abstract class Module implements ModuleInterface
 {
     /**
-     * The resolved object instances.
-     *
-     * @var array
-     */
-    protected static $resolvedPackInstance;
-
-    /**
      * The resolved controller instances.
      *
      * @var array
@@ -45,8 +38,8 @@ abstract class Module implements ModuleInterface
     /**
      * Handle dynamic, static calls to the controller.
      *
-     * @param  string  $method
-     * @param  array  $args
+     * @param string $method
+     * @param array $args
      *
      * @return mixed
      */
@@ -62,9 +55,7 @@ abstract class Module implements ModuleInterface
      */
     public static function pkg(): Package
     {
-        $pkgHandle = static::pkgHandle();
-
-        return static::$resolvedPackInstance[$pkgHandle] ?? static::$resolvedPackInstance[$pkgHandle] = self::app(PackageService::class)->getByHandle($pkgHandle);
+        return self::controller()->getPackageEntity();
     }
 
     /**
@@ -121,11 +112,6 @@ abstract class Module implements ModuleInterface
         }
     }
 
-    private static function throwInvalidClassRuntimeException(string $relatedMethod, $targetClass, string $requiredClass): void
-    {
-        throw new \RuntimeException(t('%s:%s - `%s` should be an instance of `%s`', static::class, $relatedMethod, (string)$targetClass, $requiredClass));
-    }
-
     public static function isInstalled(): bool
     {
         try {
@@ -133,6 +119,44 @@ abstract class Module implements ModuleInterface
         } catch (\Throwable $e) {
             return false;
         }
+    }
+
+    /**
+     * Get Database Config.
+     *
+     * @param string|null $key
+     * @param mixed $default
+     *
+     * @return \Concrete\Core\Config\Repository\Liaison|mixed
+     * @noinspection PhpMissingReturnTypeInspection
+     */
+    final public static function getConfig(?string $key = null, $default = null)
+    {
+        $config = self::controller()->getDatabaseConfig();
+        if ($key !== null) {
+            return $config->get($key, $default);
+        }
+
+        return $config;
+    }
+
+    /**
+     * Get File Config.
+     *
+     * @param string|null $key
+     * @param mixed $default
+     *
+     * @return \Concrete\Core\Config\Repository\Liaison|mixed
+     * @noinspection PhpMissingReturnTypeInspection
+     */
+    final public static function getFileConfig(?string $key = null, $default = null)
+    {
+        $config = self::controller()->getFileConfig();
+        if ($key !== null) {
+            return $config->get($key, $default);
+        }
+
+        return $config;
     }
 
     /**
@@ -198,44 +222,6 @@ abstract class Module implements ModuleInterface
     }
 
     /**
-     * Get Database Config.
-     *
-     * @param string|null $key
-     * @param mixed $default
-     *
-     * @return \Concrete\Core\Config\Repository\Liaison|mixed
-     * @noinspection PhpMissingReturnTypeInspection
-     */
-    final public static function getConfig(?string $key = null, $default = null)
-    {
-        $config = self::controller()->getDatabaseConfig();
-        if ($key !== null) {
-            return $config->get($key, $default);
-        }
-
-        return $config;
-    }
-
-    /**
-     * Get File Config.
-     *
-     * @param string|null $key
-     * @param mixed $default
-     *
-     * @return \Concrete\Core\Config\Repository\Liaison|mixed
-     * @noinspection PhpMissingReturnTypeInspection
-     */
-    final public static function getFileConfig(?string $key = null, $default = null)
-    {
-        $config = self::controller()->getFileConfig();
-        if ($key !== null) {
-            return $config->get($key, $default);
-        }
-
-        return $config;
-    }
-
-    /**
      * @param string $make [optional]
      *
      * @return \Concrete\Core\Application\Application|object
@@ -251,10 +237,16 @@ abstract class Module implements ModuleInterface
         return $app;
     }
 
+    private static function throwInvalidClassRuntimeException(string $relatedMethod, $targetClass, string $requiredClass): void
+    {
+        throw new \RuntimeException(t('%s:%s - `%s` should be an instance of `%s`', static::class, $relatedMethod, (string) $targetClass, $requiredClass));
+    }
+
     private static function controller(): PackageController
     {
         $pkgHandle = static::pkgHandle();
 
-        return self::$resolvedPackController[$pkgHandle] ?? self::$resolvedPackController[$pkgHandle] = static::pkg()->getController();
+        return self::$resolvedPackController[$pkgHandle] ??
+            self::$resolvedPackController[$pkgHandle] = self::app(PackageService::class)->getClass($pkgHandle);
     }
 }
