@@ -78,17 +78,17 @@ class Installer
      * Install Or Update single pages.
      *
      * @param array $paths array of paths and names
-     * Example:
-     * <pre>
-     * [
-     *  ['pagePath', 'pageName', optionalArrayofAttributeKeysAndValues],
-     * ]
-     * </pre>
+     *                     Example:
+     *                     <pre>
+     *                     [
+     *                     ['pagePath', 'pageName', optionalArrayofAttributeKeysAndValues],
+     *                     ]
+     *                     </pre>
      */
     public function installSinglePages(array $paths)
     {
         foreach ($paths as $path) {
-            $this->installSinglePage($path[0], $path[1], isset($path[2]) ? $path[2] : []);
+            $this->installSinglePage($path[0], $path[1], $path[2] ?? []);
         }
     }
 
@@ -149,10 +149,10 @@ class Installer
     }
 
     /**
-     * Intall Or Update BlockTypes.
+     * Install Or Update BlockTypes.
      *
      * @param array $handles array of handles. You can also include Blocktype sets and
-     *  use an array ['bt_handle', $btSetObj] instead of simple handle
+     *                       use an array ['bt_handle', $btSetObj] instead of simple handle
      */
     public function installBlockTypes(array $handles)
     {
@@ -160,9 +160,10 @@ class Installer
             $blockTypeSet = null;
             $btHandle = $handle;
             if (is_array($handle)) {
-                $blockTypeSet = isset($handle[1]) ? $handle[1] : null;
                 $btHandle = $handle[0];
+                $blockTypeSet = $handle[1] ?? null;
             }
+
             $this->installBlockType($btHandle, $blockTypeSet);
         }
     }
@@ -171,19 +172,22 @@ class Installer
      * Install Or Update BlockType if Exists.
      *
      * @param string $handle
-     * @param BlockTypeSet $bts
+     * @param BlockTypeSet|string $bts Block Type Set object or handle
      *
      * @return \Concrete\Core\Entity\Block\BlockType\BlockType return installed BlockType
      */
-    public function installBlockType($handle, BlockTypeSet $bts = null)
+    public function installBlockType(string $handle, $bts = null)
     {
         $bt = BlockType::getByHandle($handle);
-
         if (!is_object($bt)) {
             $bt = BlockType::installBlockType($handle, $this->pkg);
         }
 
-        if (is_object($bts)) {
+        if (is_string($bts)) {
+            $bts = BlockTypeSet::getByHandle($bts);
+        }
+
+        if (is_object($bts) && $bts instanceof BlockTypeSet) {
             $bts->addBlockType($bt);
         }
 
@@ -225,7 +229,7 @@ class Installer
     public function installAttributeTypes(array $handles)
     {
         foreach ($handles as $handle) {
-            $this->installAttributeType($handle[0], $handle[1], isset($handle[2]) ? $handle[2] : null);
+            $this->installAttributeType($handle[0], $handle[1], $handle[2] ?? null);
         }
     }
 
@@ -344,13 +348,12 @@ class Installer
      */
     public function installAttributeKeys($akCateg, array $data)
     {
-        $atFactory = $this->app->make(TypeFactory::class);
-
         if (is_string($akCateg)) {
             $akCateg = $this->app->make(CategoryService::class)->getByHandle($akCateg);
         }
 
         $installedAks = [];
+        $atFactory = $this->app->make(TypeFactory::class);
         foreach ($data as $atHandle => $attrs) {
             $at = $atFactory->getByHandle($atHandle);
             foreach ($attrs as $params) {
@@ -473,7 +476,7 @@ class Installer
 
         $installedAttrSets = [];
         foreach ($data as $params) {
-            $atSet = $this->installAttributeSet($akCateg, $params[0], $params[1], isset($params[2]) ? $params[2] : []);
+            $atSet = $this->installAttributeSet($akCateg, $params[0], $params[1], $params[2] ?? []);
             if (is_object($atSet)) {
                 $installedAttrSets[$atSet->getAttributeSetHandle()] = $atSet;
             }
@@ -560,7 +563,7 @@ class Installer
      * Override Blocks By Package.
      *
      * @param array $blocks
-     * @param Package|int|null $pkgObjOrId
+     * @param PackageEntity|int|null $pkgObjOrId
      *
      * @return ErrorList
      */
