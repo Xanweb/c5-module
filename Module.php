@@ -128,7 +128,6 @@ abstract class Module implements ModuleInterface
      * @param mixed $default
      *
      * @return \Concrete\Core\Config\Repository\Liaison|mixed
-     * @noinspection PhpMissingReturnTypeInspection
      */
     final public static function getConfig(?string $key = null, $default = null)
     {
@@ -147,7 +146,6 @@ abstract class Module implements ModuleInterface
      * @param mixed $default
      *
      * @return \Concrete\Core\Config\Repository\Liaison|mixed
-     * @noinspection PhpMissingReturnTypeInspection
      */
     final public static function getFileConfig(?string $key = null, $default = null)
     {

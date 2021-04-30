@@ -9,6 +9,7 @@ use Concrete\Core\Block\BlockType\BlockType;
 use Concrete\Core\Block\BlockType\Set as BlockTypeSet;
 use Concrete\Core\Entity\Package as PackageEntity;
 use Concrete\Core\Error\ErrorList\ErrorList;
+use Concrete\Core\Job\Job;
 use Concrete\Core\Package\Package;
 use Concrete\Core\Page\Page;
 use Concrete\Core\Page\Single as SinglePage;
@@ -146,6 +147,39 @@ class Installer
         }
 
         return $bts;
+    }
+
+    /**
+     * Install Jobs
+     *
+     * @param string ...$handles
+     *
+     * @return Job[] return installed Jobs
+     */
+    public function installJobs(string ...$handles): array
+    {
+        $jobs = [];
+        foreach ($handles as $handle) {
+            $jobs[] = $this->installJob($handle);
+        }
+
+        return $jobs;
+    }
+
+    /**
+     * Install Job if it doesn't exists.
+     *
+     * @param string $handle
+     *
+     * @return Job return installed Job
+     */
+    public function installJob(string $handle): Job
+    {
+        if (!is_object($job = Job::getByHandle($handle))) {
+            $job = Job::installByPackage($handle, $this->pkg);
+        }
+
+        return $job;
     }
 
     /**
