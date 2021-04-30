@@ -9,12 +9,17 @@ class Uninstaller
     /**
      * Drop Database Tables.
      *
-     * @param \array $tables
+     * @param ...$tables
      */
-    public static function dropTables(array $tables): void
+    public static function dropTables(...$tables): void
     {
         $db = Database::connection();
         $platform = $db->getDatabasePlatform();
+
+        // Support both
+        if (count($tables) === 1 && is_array($tables[0])) {
+            $tables = $tables[0];
+        }
 
         foreach ($tables as $table) {
             if ($db->tableExists($table)) {
