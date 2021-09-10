@@ -51,7 +51,7 @@ abstract class Module implements ModuleInterface
     /**
      * {@inheritdoc}
      *
-     * @see Module::pkg()
+     * @see ModuleInterface::pkg()
      */
     public static function pkg(): Package
     {
@@ -61,7 +61,7 @@ abstract class Module implements ModuleInterface
     /**
      * {@inheritdoc}
      *
-     * @see Module::boot()
+     * @see ModuleInterface::boot()
      */
     public static function boot()
     {
@@ -190,7 +190,7 @@ abstract class Module implements ModuleInterface
     }
 
     /**
-     * Get Classes names for RouteList, must be instance of \Concrete\Core\Routing\RouteListInterface.
+     * Get Classes names for RouteList, must be an instance of \Concrete\Core\Routing\RouteListInterface.
      *
      * @return string[]
      */
@@ -200,7 +200,7 @@ abstract class Module implements ModuleInterface
     }
 
     /**
-     * AssetProviders should be instance of \Xanweb\Module\Asset\Provider.
+     * AssetProviders should be an instance of \Xanweb\Module\Asset\Provider.
      *
      * @return string[]
      */
@@ -210,7 +210,7 @@ abstract class Module implements ModuleInterface
     }
 
     /**
-     * Event Subscribers should be instance of \Symfony\Component\EventDispatcher\EventSubscriberInterface.
+     * Event Subscribers should be an instance of \Symfony\Component\EventDispatcher\EventSubscriberInterface.
      *
      * @return string[]
      */
