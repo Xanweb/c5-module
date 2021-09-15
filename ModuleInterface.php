@@ -11,7 +11,7 @@ interface ModuleInterface
      *
      * @return string
      */
-    public static function pkgHandle();
+    public static function pkgHandle(): string;
 
     /**
      * Get current package object.
@@ -23,5 +23,5 @@ interface ModuleInterface
     /**
      * Basic Boot for Module.
      */
-    public static function boot();
+    public static function boot(): void;
 }

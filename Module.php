@@ -26,7 +26,7 @@ abstract class Module implements ModuleInterface
      *
      * @var array
      */
-    private static $resolvedPackController;
+    private static array $resolvedPackController = [];
 
     /**
      * Class to be used Statically.
@@ -63,22 +63,21 @@ abstract class Module implements ModuleInterface
      *
      * @see ModuleInterface::boot()
      */
-    public static function boot()
+    public static function boot(): void
     {
         // Register Class Aliases
         if (is_array($aliases = static::getClassAliases()) && $aliases !== []) {
-            $aliasList = ClassAliasList::getInstance();
-            $aliasList->registerMultiple($aliases);
+            ClassAliasList::getInstance()->registerMultiple($aliases);
         }
 
         $app = self::app();
         // Register Service Providers
-        if (is_array($providers = static::getServiceProviders()) && $providers !== []) {
+        if (($providers = static::getServiceProviders()) !== []) {
             $app->make(ProviderList::class)->registerProviders($providers);
         }
 
         // Register Route Lists
-        if (is_array($routeListClasses = static::getRoutesClasses()) && $routeListClasses !== []) {
+        if (($routeListClasses = static::getRoutesClasses()) !== []) {
             $router = Route::getFacadeRoot();
             foreach ($routeListClasses as $routeListClass) {
                 if (is_subclass_of($routeListClass, RouteListInterface::class)) {
@@ -93,7 +92,7 @@ abstract class Module implements ModuleInterface
         $assetProviders = static::getAssetProviders();
         foreach ($assetProviders as $assetProviderClass) {
             if (is_subclass_of($assetProviderClass, Provider::class)) {
-                $app->build($assetProviderClass, [static::pkg()])->register();
+                $app->build($assetProviderClass, ['package' => static::pkg()])->register();
             } else {
                 self::throwInvalidClassRuntimeException('getAssetProviders', $assetProviderClass, Provider::class);
             }
@@ -101,7 +100,7 @@ abstract class Module implements ModuleInterface
 
         // Register Event Subscribers
         if (($evtSubscriberClasses = static::getEventSubscribers()) !== []) {
-            $director = $app->make(EventDispatcherInterface::class);
+            $director = $app->make('director');
             foreach ($evtSubscriberClasses as $evtSubscriberClass) {
                 if (is_subclass_of($evtSubscriberClass, EventSubscriberInterface::class)) {
                     $director->addSubscriber($app->build($evtSubscriberClass));
@@ -162,7 +161,7 @@ abstract class Module implements ModuleInterface
      *
      * @return array
      */
-    protected static function getClassAliases()
+    protected static function getClassAliases(): array
     {
         return [
             static::getPackageAlias() => static::class,
@@ -184,7 +183,7 @@ abstract class Module implements ModuleInterface
      *
      * @return string[]
      */
-    protected static function getServiceProviders()
+    protected static function getServiceProviders(): array
     {
         return [];
     }
@@ -194,7 +193,7 @@ abstract class Module implements ModuleInterface
      *
      * @return string[]
      */
-    protected static function getRoutesClasses()
+    protected static function getRoutesClasses(): array
     {
         return [];
     }

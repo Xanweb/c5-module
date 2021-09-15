@@ -2,14 +2,15 @@
     "name": "xanweb/c5-module",
     "description": "Concrete5 package signature",
     "keywords": [
+        "Concrete-CMS",
         "concrete5",
-        "concrete5-v8",
+        "concrete5-v9",
         "concrete5-package"
     ],
     "type": "library",
     "license": "MIT",
     "require": {
-        "php": ">=7.2"
+        "php": ">=7.4"
     },
     "autoload": {
         "psr-4": {
@@ -21,7 +22,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-develop": "1.x-dev"
+            "dev-develop": "2.x-dev"
         }
     }
 }

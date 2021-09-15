@@ -14,12 +14,12 @@ abstract class Provider implements ApplicationAwareInterface
     /**
      * @var Package
      */
-    protected $pkg;
+    protected Package $pkg;
 
     /**
      * @var AssetList
      */
-    protected $assetList;
+    protected AssetList $assetList;
 
     public function __construct(Package $package)
     {

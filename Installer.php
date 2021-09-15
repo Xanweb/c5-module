@@ -95,15 +95,13 @@ class Installer
     /**
      * Install single pages.
      *
-     * @param array $paths array of paths and names
+     * @param array<string, string, array> ...$paths list of paths and names
      *                     Example:
      *                     <pre>
-     *                     [
      *                     ['pagePath', 'pageName', optionalArrayOfAttributeKeysAndValues],
-     *                     ]
      *                     </pre>
      */
-    public function installSinglePages(array $paths): void
+    public function installSinglePages(array ...$paths): void
     {
         foreach ($paths as $path) {
             $this->installSinglePage($path[0], $path[1], $path[2] ?? []);
@@ -138,15 +136,13 @@ class Installer
     /**
      * Install BlockType Sets.
      *
-     * @param array $sets array of handles and names
+     * @param array<string, string> ...$sets array of handles and names
      * Example:
      *                     <pre>
-     *                     [
-     *                          ['btSetHandle', 'btSetName'], ['btSetHandle', 'btSetName'],
-     *                     ]
+     *                     ['btSetHandle', 'btSetName'], ['btSetHandle', 'btSetName'],
      *                     </pre>
      */
-    public function installBlockTypeSets(array $sets): void
+    public function installBlockTypeSets(array ...$sets): void
     {
         foreach ($sets as $set) {
             $this->installBlockTypeSet($set[0], $set[1]);
@@ -163,9 +159,7 @@ class Installer
      */
     public function installBlockTypeSet(string $handle, string $name): BlockTypeSet
     {
-        $bts = BlockTypeSet::getByHandle($handle);
-
-        if (!is_object($bts)) {
+        if (!is_object($bts = BlockTypeSet::getByHandle($handle))) {
             $bts = BlockTypeSet::add($handle, $name, $this->pkg);
         }
 
@@ -208,13 +202,11 @@ class Installer
     /**
      * Install BlockTypes.
      *
-     * @param array $handles array of handles.
+     * @param mixed ...$handles list of handles.
      * Example:
-     *                     <pre>
-     *                     [
-     *                          'btHandle1', ['btHandle2', 'btSetObj'], 'btHandle3',
-     *                     ]
-     *                     </pre>
+     *                     <code>
+     *                     'btHandle1', ['btHandle2', 'btSetObj'], 'btHandle3',
+     *                     </code>
      */
     public function installBlockTypes(array $handles): void
     {
@@ -285,9 +277,9 @@ class Installer
     /**
      * Install AttributeTypes.
      *
-     * @param array $handles array of handles and names
+     * @param array<string, string, AttributeCategoryEntity> ...$handles list of handles and names
      */
-    public function installAttributeTypes(array $handles): void
+    public function installAttributeTypes(array ...$handles): void
     {
         foreach ($handles as $handle) {
             $this->installAttributeType($handle[0], $handle[1], $handle[2] ?? null);
