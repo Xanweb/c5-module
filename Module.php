@@ -66,7 +66,7 @@ abstract class Module implements ModuleInterface
     public static function boot(): void
     {
         // Register Class Aliases
-        if (is_array($aliases = static::getClassAliases()) && $aliases !== []) {
+        if (($aliases = static::getClassAliases()) !== []) {
             ClassAliasList::getInstance()->registerMultiple($aliases);
         }
 
