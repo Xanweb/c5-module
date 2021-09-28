@@ -81,7 +81,7 @@ abstract class Module implements ModuleInterface
             $router = Route::getFacadeRoot();
             foreach ($routeListClasses as $routeListClass) {
                 if (is_subclass_of($routeListClass, RouteListInterface::class)) {
-                    $router->loadRouteList($app->build($routeListClass));
+                    $router->loadRouteList($app->make($routeListClass));
                 } else {
                     self::throwInvalidClassRuntimeException('getRoutesClasses', $routeListClass, RouteListInterface::class);
                 }
@@ -92,7 +92,7 @@ abstract class Module implements ModuleInterface
         $assetProviders = static::getAssetProviders();
         foreach ($assetProviders as $assetProviderClass) {
             if (is_subclass_of($assetProviderClass, Provider::class)) {
-                $app->build($assetProviderClass, ['package' => static::pkg()])->register();
+                $app->make($assetProviderClass, ['package' => static::pkg()])->register();
             } else {
                 self::throwInvalidClassRuntimeException('getAssetProviders', $assetProviderClass, Provider::class);
             }
@@ -103,7 +103,7 @@ abstract class Module implements ModuleInterface
             $director = $app->make('director');
             foreach ($evtSubscriberClasses as $evtSubscriberClass) {
                 if (is_subclass_of($evtSubscriberClass, EventSubscriberInterface::class)) {
-                    $director->addSubscriber($app->build($evtSubscriberClass));
+                    $director->addSubscriber($app->make($evtSubscriberClass));
                 } else {
                     self::throwInvalidClassRuntimeException('getEventSubscribers', $evtSubscriberClass, EventSubscriberInterface::class);
                 }
