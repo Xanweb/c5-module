@@ -208,7 +208,7 @@ class Installer
      *                     'btHandle1', ['btHandle2', 'btSetObj'], 'btHandle3',
      *                     </code>
      */
-    public function installBlockTypes(array $handles): void
+    public function installBlockTypes(...$handles): void
     {
         foreach ($handles as $handle) {
             $blockTypeSet = null;
