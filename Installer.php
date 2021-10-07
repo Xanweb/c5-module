@@ -2,6 +2,7 @@
 
 namespace Xanweb\Module;
 
+use Concrete\Core\Application\Application;
 use Concrete\Core\Attribute\Category\CategoryInterface as AttributeCategoryInterface;
 use Concrete\Core\Attribute\Category\CategoryService;
 use Concrete\Core\Attribute\SetFactory;
@@ -21,19 +22,12 @@ use Concrete\Core\Page\Page;
 use Concrete\Core\Page\Single as SinglePage;
 use Concrete\Core\Page\Template as PageTemplate;
 use Concrete\Core\Page\Type\Type as PageType;
-use Concrete\Core\Support\Facade\Application;
+use Concrete\Core\Support\Facade\Application as FacadeApp;
 
 class Installer
 {
-    /**
-     * @var \Concrete\Core\Application\Application
-     */
-    protected $app;
-
-    /**
-     * @param PackageEntity $pkg
-     */
-    protected $pkg;
+    protected Application $app;
+    protected PackageEntity $pkg;
 
     /**
      * Installer constructor.
@@ -43,7 +37,7 @@ class Installer
     public function __construct($pkg)
     {
         $this->pkg = ($pkg instanceof Package) ? $pkg->getPackageEntity() : $pkg;
-        $this->app = Application::getFacadeApplication();
+        $this->app = FacadeApp::getFacadeApplication();
     }
 
     /**
