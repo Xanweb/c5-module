@@ -12,7 +12,6 @@ use Concrete\Core\Routing\RouteListInterface;
 use Concrete\Core\Support\Facade\Application as FacadeApp;
 use Concrete\Core\Support\Facade\Route;
 use Illuminate\Support\Str;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Xanweb\Module\Asset\Provider;
 
