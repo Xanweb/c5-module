@@ -2,13 +2,14 @@
 
 namespace Xanweb\Module;
 
+use Concrete\Core\Application\Application;
 use Concrete\Core\Entity\Package;
 use Concrete\Core\Foundation\ClassAliasList;
 use Concrete\Core\Foundation\Service\ProviderList;
 use Concrete\Core\Package\Package as PackageController;
 use Concrete\Core\Package\PackageService;
 use Concrete\Core\Routing\RouteListInterface;
-use Concrete\Core\Support\Facade\Application;
+use Concrete\Core\Support\Facade\Application as FacadeApp;
 use Concrete\Core\Support\Facade\Route;
 use Illuminate\Support\Str;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -21,6 +22,8 @@ use Xanweb\Module\Asset\Provider;
  */
 abstract class Module implements ModuleInterface
 {
+    private static Application $app;
+
     /**
      * The resolved controller instances.
      *
@@ -221,17 +224,19 @@ abstract class Module implements ModuleInterface
     /**
      * @param string $make [optional]
      *
-     * @return \Concrete\Core\Application\Application|object
+     * @return Application|object
      */
     protected static function app($make = null)
     {
-        $app = Application::getFacadeApplication();
-
-        if ($make !== null) {
-            return $app->make($make);
+        if (!isset(self::$app)) {
+            self::$app = FacadeApp::getFacadeApplication();
         }
 
-        return $app;
+        if ($make !== null) {
+            return self::$app->make($make);
+        }
+
+        return self::$app;
     }
 
     private static function throwInvalidClassRuntimeException(string $relatedMethod, $targetClass, string $requiredClass): void
