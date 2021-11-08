@@ -80,6 +80,22 @@ class Installer
     }
 
     /**
+     * Install page types.
+     *
+     * @param array ...$pageTypes list of page templates
+     *                     Example:
+     *                     <pre>
+     *                     ['pTemplateHandle', 'pTypeHandle', 'pTypeName'],
+     *                     </pre>
+     */
+    public function installPageTypes(array ...$pageTypes): void
+    {
+        foreach ($pageTypes as $pageType) {
+            $this->installPageType(...$pageType);
+        }
+    }
+
+    /**
      * Install Page Type if not Exist.
      *
      * @param string $pTemplateHandle
@@ -119,7 +135,7 @@ class Installer
     public function installSinglePages(array ...$paths): void
     {
         foreach ($paths as $path) {
-            $this->installSinglePage($path[0], $path[1], $path[2] ?? []);
+            $this->installSinglePage(...$path);
         }
     }
 
