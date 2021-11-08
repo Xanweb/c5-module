@@ -606,6 +606,59 @@ class Installer
     }
 
     /**
+     * Override Single Page By Package.
+     *
+     * @param string $pagePath
+     * @param PackageEntity|int|null $pkgObjOrId if null then the actual related package will be used.
+     * @return ErrorList
+     */
+    public function overrideSinglePage(string $pagePath, $pkgObjOrId = null): ErrorList
+    {
+        $pkgID = $this->pkg->getPackageID();
+        if ($pkgObjOrId) {
+            if (is_object($pkgObjOrId)) {
+                $pkgID = $pkgObjOrId->getPackageID();
+            } elseif (is_int($pkgObjOrId) && $pkgObjOrId > 0) {
+                $pkgID = (int) $pkgObjOrId;
+            } else {
+                throw new \RuntimeException(__METHOD__ . ': ' . t('Invalid given package or package id.'));
+            }
+        }
+
+        $e = new ErrorList();
+        $db = $this->app->make('database/connection');
+        $page = Page::getByPath($pagePath);
+        if (is_object($page) && !$page->isError()) {
+            $db->update('Pages', ['pkgID' => $pkgID], ['cID' => $page->getCollectionID()]);
+        } else {
+            $e->add(__METHOD__ . ': ' . t('Single Page with path `%s` not found.', $pagePath));
+        }
+
+        return $e;
+    }
+
+    /**
+     * Assign Blocks to Core.
+     *
+     * @param string $pagePath
+     *
+     * @return ErrorList
+     */
+    public function assignSinglePageToCore(string $pagePath): ErrorList
+    {
+        $e = new ErrorList();
+        $db = $this->app->make('database/connection');
+        $page = Page::getByPath($pagePath);
+        if (is_object($page) && !$page->isError()) {
+            $db->update('Pages', ['pkgID' => 0], ['cID' => $page->getCollectionID()]);
+        } else {
+            $e->add(__METHOD__ . ': ' . t('Single Page with path `%s` not found.', $pagePath));
+        }
+
+        return $e;
+    }
+
+    /**
      * Override Blocks By Package.
      *
      * @param array $blocks
