@@ -41,6 +41,27 @@ class Installer
     }
 
     /**
+     * Install page templates.
+     *
+     * @param array ...$templates list of page templates
+     *                     Example:
+     *                     <pre>
+     *                     ['templateHandle', 'templateName', 'templateIcon', isInternal],
+     *                     </pre>
+     */
+    public function installPageTemplates(array ...$templates): void
+    {
+        foreach ($templates as $template) {
+            $this->installPageTemplate(
+                $template[0],
+                $template[1],
+                $template[2] ?? FILENAME_PAGE_TEMPLATE_DEFAULT_ICON,
+                $template[3] ?? false,
+            );
+        }
+    }
+
+    /**
      * install Page Template if not Exist.
      *
      * @param string $pTemplateHandle
