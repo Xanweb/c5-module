@@ -247,7 +247,6 @@ abstract class Module implements ModuleInterface
     {
         $pkgHandle = static::pkgHandle();
 
-        return self::$resolvedPackController[$pkgHandle] ??
-            self::$resolvedPackController[$pkgHandle] = self::app(PackageService::class)->getClass($pkgHandle);
+        return self::$resolvedPackController[$pkgHandle] ??= self::app(PackageService::class)->getClass($pkgHandle);
     }
 }
