@@ -13,6 +13,7 @@ use Concrete\Core\Entity\Attribute\Category as AttributeCategoryEntity;
 use Concrete\Core\Entity\Attribute\Key\Key as AttributeKeyEntity;
 use Concrete\Core\Entity\Attribute\Set as AttributeSetEntity;
 use Concrete\Core\Entity\Attribute\Type as AttributeTypeEntity;
+use Concrete\Core\Entity\Automation\Task;
 use Concrete\Core\Entity\Package as PackageEntity;
 use Concrete\Core\Entity\Page\Template;
 use Concrete\Core\Error\ErrorList\ErrorList;
@@ -23,6 +24,7 @@ use Concrete\Core\Page\Single as SinglePage;
 use Concrete\Core\Page\Template as PageTemplate;
 use Concrete\Core\Page\Type\Type as PageType;
 use Concrete\Core\Support\Facade\Application as FacadeApp;
+use Doctrine\ORM\EntityManager;
 
 class Installer
 {
@@ -751,5 +753,40 @@ class Installer
         }
 
         return $e;
+    }
+
+    /**
+     * Install task
+     *
+     * @param string $handle
+     * @return Task
+     */
+    public function installTask(string $handle): Task
+    {
+        $entityManager = $this->app->make(EntityManager::class);
+        $task = $entityManager->getRepository(Task::class)
+            ->findOneByHandle($handle);
+        if ($task === null) {
+            $task = new Task();
+            $task->setHandle($handle);
+            $task->setPackage($this->pkg);
+            $entityManager->persist($task);
+            $entityManager->flush();
+        }
+        return $task;
+    }
+
+    /**
+     * @param string ...$tasks
+     * @return array|Task[]
+     */
+    public function installTasks(string ...$tasks): array
+    {
+        $res = [];
+        foreach ($tasks as $task) {
+            $res[] = $this->installTask($task);
+        }
+
+        return $res;
     }
 }
