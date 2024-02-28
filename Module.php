@@ -3,6 +3,9 @@
 namespace Xanweb\Module;
 
 use Concrete\Core\Application\Application;
+use Symfony\Component\Console\Application as ConsoleApplication;
+use Concrete\Core\Console\Command;
+use Concrete\Core\Console\ConsoleAwareInterface;
 use Concrete\Core\Entity\Package;
 use Concrete\Core\Foundation\ClassAliasList;
 use Concrete\Core\Foundation\Service\ProviderList;
@@ -109,6 +112,14 @@ abstract class Module implements ModuleInterface
                 } else {
                     self::throwInvalidClassRuntimeException('getEventSubscribers', $evtSubscriberClass, EventSubscriberInterface::class);
                 }
+            }
+        }
+
+        //register console commands
+        if(($consoleCmdClasses=static::getConsoleCmds())!==[])
+        {
+            foreach($consoleCmdClasses as $cmdClass) {
+                $app->make(ConsoleApplication::class)->add($app->make($cmdClass));
             }
         }
     }
@@ -248,5 +259,14 @@ abstract class Module implements ModuleInterface
         $pkgHandle = static::pkgHandle();
 
         return self::$resolvedPackController[$pkgHandle] ??= self::app(PackageService::class)->getClass($pkgHandle);
+    }
+
+    /**
+     * return list of CLI command  class list
+     * @return string[]
+     */
+    protected static function getConsoleCmds(): array
+    {
+        return [];
     }
 }
