@@ -111,6 +111,14 @@ abstract class Module implements ModuleInterface
                 }
             }
         }
+        //register console commands
+        if (($consoleCmdClasses = static::getConsoleCmds()) !== []) {
+            foreach ($consoleCmdClasses as $cmdClass) {
+                if ($app->has("console")) {
+                    $app->make("console")->add($app->make($cmdClass));
+                }
+            }
+        }
     }
 
     public static function isInstalled(): bool
@@ -240,7 +248,7 @@ abstract class Module implements ModuleInterface
 
     private static function throwInvalidClassRuntimeException(string $relatedMethod, $targetClass, string $requiredClass): void
     {
-        throw new \RuntimeException(t('%s:%s - `%s` should be an instance of `%s`', static::class, $relatedMethod, (string) $targetClass, $requiredClass));
+        throw new \RuntimeException(t('%s:%s - `%s` should be an instance of `%s`', static::class, $relatedMethod, (string)$targetClass, $requiredClass));
     }
 
     private static function controller(): PackageController
@@ -248,5 +256,14 @@ abstract class Module implements ModuleInterface
         $pkgHandle = static::pkgHandle();
 
         return self::$resolvedPackController[$pkgHandle] ??= self::app(PackageService::class)->getClass($pkgHandle);
+    }
+
+    /**
+     * return list of CLI command  class list
+     * @return string[]
+     */
+    protected static function getConsoleCmds(): array
+    {
+        return [];
     }
 }
